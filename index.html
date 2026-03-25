@@ -8,128 +8,171 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
   
   <style>
-    /* 全体の設定 */
     body {
       margin: 0;
-      padding: 0;
+      padding: 20px 0;
       font-family: 'Noto Serif JP', serif;
-      background-color: #2c3e50; /* 外側の背景は落ち着いた紺色 */
+      background-color: #2c3e50; /* 背景の落ち着いた紺色 */
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start; /* 縦スクロールできるように */
       min-height: 100vh;
-      overflow: hidden;
+      box-sizing: border-box;
     }
 
-    /* おみくじの紙（枠） */
+    /* おみくじの紙 */
     .omikuji-paper {
       background-color: #fffdfa; /* 和紙のようなクリーム色 */
-      height: 85vh;
-      width: 90vw;
-      max-width: 600px;
-      padding: 30px 20px;
+      width: 92vw;
+      max-width: 500px;
+      padding: 20px 10px;
       box-sizing: border-box;
-      border: 3px solid #d34b31; 
-      outline: 1px solid #d34b31;
-      outline-offset: -8px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
       position: relative;
-      color: #d34b31;
-      writing-mode: vertical-rl;
-      overflow-x: auto;
-      overflow-y: hidden;
+      color: #d34b31; /* 朱色 */
+      border: 2px solid #d34b31;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 内側の細い二重枠線 */
+    .omikuji-paper::before {
+      content: "";
+      position: absolute;
+      top: 6px; left: 6px; right: 6px; bottom: 6px;
+      border: 1px solid #d34b31;
+      pointer-events: none;
     }
 
     .content-area {
-      height: 100%;
-      opacity: 0;
-      transition: opacity 0.8s ease;
-      display: flex;
-      align-items: flex-start;
-      align-content: flex-start;
-      flex-wrap: wrap;
-    }
-
-    /* 運勢エリア */
-    .unsei-header {
-      margin-left: 30px;
-      border-left: 1px solid rgba(211, 75, 49, 0.4);
-      padding-left: 15px;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      flex: 1;
+      opacity: 1; /* ★透明バグ修正済み！ */
+      transition: opacity 0.8s ease;
     }
 
-    .unsei-label {
-      font-size: 1.2rem;
-      letter-spacing: 0.5em;
-      margin-bottom: 20px;
-    }
+    /* ローディングフェード用 */
+    .fade { opacity: 0 !important; }
 
-    .unsei-value {
-      font-size: 3.5rem;
-      font-weight: 700;
-      line-height: 1.2;
+    /* --- 上部：一言メッセージ（格言） --- */
+    .top-section {
+      writing-mode: vertical-rl;
+      width: 100%;
+      min-height: 330px; /* 英語が入る分少し高く */
+      padding: 30px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center; 
+      justify-content: center; 
     }
-
-    /* 運勢の英語 */
-    .en-fortune {
-      font-size: 1rem;
-      font-weight: 400;
-      margin-top: 10px;
-      text-orientation: mixed; /* 英字を自然な向きに */
-    }
-
-    /* 各項目のリスト */
-    .detail-item {
-      margin-left: 20px;
-      font-size: 1.1rem;
-    }
-
-    .detail-label {
-      font-weight: 700;
-      display: inline-block;
-      margin-bottom: 12px;
-      font-size: 1.2rem;
-    }
-
-    .detail-text {
-      display: inline-block;
-      line-height: 1.5;
-    }
-
-    /* 各項目の英語 */
-    .en-text {
-      font-size: 0.65rem;
-      margin-right: 5px; /* 縦書き時の行間 */
-      opacity: 0.8;
-      text-orientation: mixed;
-    }
-
-    .spacer {
-      margin-left: 25px;
-    }
-
-    /* メッセージエリア */
-    .message-area {
+    .message-text {
       font-size: 1.6rem;
       font-weight: 700;
-      line-height: 1.6;
-      margin-left: 30px;
-      padding-left: 20px;
-      border-left: 1px solid rgba(211, 75, 49, 0.4);
+      line-height: 1.8;
+      letter-spacing: 0.1em;
+    }
+    .message-en {
+      font-size: 0.85rem;
+      font-weight: 400;
+      margin-right: 15px; /* 日本語との行間 */
+      opacity: 0.8;
+      text-orientation: mixed; /* 英語を自然な向きに */
     }
 
-    /* メッセージの英語 */
-    .message-en {
-      font-size: 0.8rem;
+    /* --- 中央：運勢の横帯 --- */
+    .middle-section {
+      margin: 0 15px;
+      padding: 15px 10px;
+      border-top: 1px solid #d34b31;
+      border-bottom: 1px solid #d34b31;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .unsei-label {
+      font-size: 1.3rem;
+      letter-spacing: 0.3em;
+      font-weight: 700;
+    }
+    .unsei-mark {
+      width: 36px;
+      height: 36px;
+      border: 2px solid #d34b31;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.2rem;
+    }
+    .unsei-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-align: right;
+    }
+    .unsei-en {
+      font-size: 0.9rem;
       font-weight: 400;
-      margin-right: 10px;
       opacity: 0.8;
+      display: block; /* 英語は日本語の下に表示 */
+    }
+
+    /* --- 下部：詳細項目 --- */
+    .bottom-section {
+      display: flex;
+      flex-direction: row-reverse; /* 右から左へ並べる魔法 */
+      flex-wrap: wrap; /* 端までいったら下段へ折り返す */
+      padding: 20px 5px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .detail-item {
+      writing-mode: vertical-rl; /* 項目の中だけ縦書き */
+      height: 260px; /* 英語が入るので高さを出す */
+      margin: 0 8px 25px 8px;
+    }
+    .detail-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+    }
+    .detail-desc {
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .detail-en {
+      font-size: 0.65rem;
+      line-height: 1.3;
+      margin-right: 8px;
+      opacity: 0.7;
       text-orientation: mixed;
     }
 
-    /* ローディングとフェード */
+    /* --- ボタン --- */
+    .btn-container {
+      text-align: center;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      z-index: 100;
+    }
+    .btn {
+      background: #d34b31;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1rem;
+      box-shadow: 0 4px 10px rgba(211, 75, 49, 0.3);
+      transition: all 0.3s ease;
+      visibility: hidden;
+    }
+    .btn:active { transform: translateY(2px); }
+
+    /* --- ローダー --- */
     .loader {
       border: 3px solid rgba(211, 75, 49, 0.2);
       border-top: 3px solid #d34b31;
@@ -137,85 +180,67 @@
       width: 40px;
       height: 40px;
       animation: spin 1s linear infinite;
-      position: absolute;
-      top: calc(50% - 20px);
-      left: calc(50% - 20px);
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       z-index: 10;
+      display: none;
     }
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
-    .fade { opacity: 0; }
-    
-    /* ボタン */
-    .btn {
-      position: absolute;
-      left: 20px;
-      bottom: 20px;
-      writing-mode: horizontal-tb; /* ボタンは横書き */
-      background: #d34b31;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-family: 'Noto Serif JP', serif;
-      box-shadow: 0 4px 10px rgba(211, 75, 49, 0.3);
-      transition: all 0.3s ease;
-      z-index: 100;
-    }
-    .btn:active { transform: translateY(2px); }
   </style>
 </head>
 <body>
 
+  <div class="loader" id="loader"></div>
+
   <div class="omikuji-paper">
-    <div class="loader" id="loader"></div>
-    
-    <div class="content-area" id="content-area">
+    <div class="content-area fade" id="content-area">
       
-      <!-- 運勢 -->
-      <div class="unsei-header">
-        <span class="unsei-label">運勢</span>
-        <span class="unsei-value" id="unsei"></span>
+      <!-- 上部：メッセージ -->
+      <div class="top-section">
+        <div class="message-text" id="message"></div>
       </div>
-
-      <!-- 基本項目 -->
-      <div class="detail-item"><span class="detail-label">願事</span><span class="detail-text" id="negaigoto"></span></div>
-      <div class="detail-item"><span class="detail-label">恋愛</span><span class="detail-text" id="renai"></span></div>
-      <div class="detail-item"><span class="detail-label">待人</span><span class="detail-text" id="machibito"></span></div>
-      <div class="detail-item"><span class="detail-label">商売</span><span class="detail-text" id="shoubai"></span></div>
-      <div class="detail-item"><span class="detail-label">旅行</span><span class="detail-text" id="ryokou"></span></div>
-      <div class="detail-item"><span class="detail-label">学問</span><span class="detail-text" id="gakumon"></span></div>
-      <div class="detail-item"><span class="detail-label">病気</span><span class="detail-text" id="byouki"></span></div>
       
-      <div class="spacer"></div>
+      <!-- 中央：運勢 -->
+      <div class="middle-section">
+        <div class="unsei-label">運勢<br><span style="font-size:0.6rem; font-weight:normal; opacity:0.8;">Fortune</span></div>
+        <div class="unsei-mark">⛩️</div>
+        <div class="unsei-value" id="unsei"></div>
+      </div>
       
-      <!-- 開運 -->
-      <div class="detail-item"><span class="detail-label">開運物</span><span class="detail-text" id="kaiun_mono"></span></div>
-      <div class="detail-item"><span class="detail-label">開運場所</span><span class="detail-text" id="kaiun_basho"></span></div>
-      <div class="detail-item"><span class="detail-label">開運人物</span><span class="detail-text" id="kaiun_jinbutsu"></span></div>
-      <div class="detail-item"><span class="detail-label">開運色</span><span class="detail-text" id="kaiun_iro"></span></div>
-      
-      <div class="spacer"></div>
-      
-      <!-- 不運 -->
-      <div class="detail-item"><span class="detail-label">不運物</span><span class="detail-text" id="fuun_mono"></span></div>
-      <div class="detail-item"><span class="detail-label">不運場所</span><span class="detail-text" id="fuun_basho"></span></div>
-      <div class="detail-item"><span class="detail-label">不運人物</span><span class="detail-text" id="fuun_jinbutsu"></span></div>
-
-      <!-- 一言メッセージ -->
-      <div class="message-area" id="message"></div>
+      <!-- 下部：詳細 -->
+      <div class="bottom-section">
+        <div class="detail-item"><div class="detail-title">願事</div><div class="detail-desc" id="negaigoto"></div></div>
+        <div class="detail-item"><div class="detail-title">恋愛</div><div class="detail-desc" id="renai"></div></div>
+        <div class="detail-item"><div class="detail-title">待人</div><div class="detail-desc" id="machibito"></div></div>
+        <div class="detail-item"><div class="detail-title">商売</div><div class="detail-desc" id="shoubai"></div></div>
+        <div class="detail-item"><div class="detail-title">旅行</div><div class="detail-desc" id="ryokou"></div></div>
+        <div class="detail-item"><div class="detail-title">学問</div><div class="detail-desc" id="gakumon"></div></div>
+        <div class="detail-item"><div class="detail-title">病気</div><div class="detail-desc" id="byouki"></div></div>
+        
+        <div class="detail-item"><div class="detail-title">開運物</div><div class="detail-desc" id="kaiun_mono"></div></div>
+        <div class="detail-item"><div class="detail-title">開運場所</div><div class="detail-desc" id="kaiun_basho"></div></div>
+        <div class="detail-item"><div class="detail-title">開運人物</div><div class="detail-desc" id="kaiun_jinbutsu"></div></div>
+        <div class="detail-item"><div class="detail-title">開運色</div><div class="detail-desc" id="kaiun_iro"></div></div>
+        
+        <div class="detail-item"><div class="detail-title">不運物</div><div class="detail-desc" id="fuun_mono"></div></div>
+        <div class="detail-item"><div class="detail-title">不運場所</div><div class="detail-desc" id="fuun_basho"></div></div>
+        <div class="detail-item"><div class="detail-title">不運人物</div><div class="detail-desc" id="fuun_jinbutsu"></div></div>
+      </div>
 
     </div>
     
-    <!-- ボタンにも英語を併記 -->
-    <button class="btn" id="btn" onclick="fetchOmikuji()" style="visibility: hidden;">引き直す (Draw again)</button>
+    <div class="btn-container">
+      <button class="btn" id="btn" onclick="fetchOmikuji()">引き直す (Draw again)</button>
+    </div>
   </div>
 
   <script>
-    // ★↓↓↓ ここにご自身のGASのURLを貼り付けてください ↓↓↓★
+    // ★いただいた多言語版のGASのURLをセット済みです！
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzCda4V2uK3uPFeCWajXyCBRcEbKwrapneg4vTmBhmtOt4L89pULGOpyPST1jTb73u-Yg/exec";
 
     window.onload = function() {
@@ -227,6 +252,7 @@
       const loader = document.getElementById('loader');
       const contentArea = document.getElementById('content-area');
 
+      // 非表示＆ローディング
       contentArea.classList.add('fade');
       btn.style.visibility = 'hidden';
       loader.style.display = 'block';
@@ -236,24 +262,30 @@
         .then(data => {
           setTimeout(() => {
             
-            // 運勢とメッセージ（日本語の下に英語を追加）
-            document.getElementById('unsei').innerHTML = `${data.fortuneJP}<br><span class="en-fortune">${data.fortuneEN}</span>`;
+            // 運勢（日本語の下に英語を挿入）
+            document.getElementById('unsei').innerHTML = `${data.fortuneJP}<br><span class="unsei-en">${data.fortuneEN}</span>`;
+            
+            // メッセージ（日本語の左側に少し小さく英語を挿入）
             document.getElementById('message').innerHTML = `${data.messageJP}<br><span class="message-en">${data.messageEN}</span>`;
             
-            // その他の項目をループで一気に処理（日本語の下に英語を追加）
+            // その他の14項目をループで一気に処理
             const items =['negaigoto', 'renai', 'machibito', 'shoubai', 'ryokou', 'gakumon', 'byouki', 'kaiun_mono', 'kaiun_basho', 'kaiun_jinbutsu', 'kaiun_iro', 'fuun_mono', 'fuun_basho', 'fuun_jinbutsu'];
             
             items.forEach(item => {
-              document.getElementById(item).innerHTML = `${data[item+'JP']}<br><span class="en-text">${data[item+'EN']}</span>`;
+              document.getElementById(item).innerHTML = `${data[item+'JP']}<br><span class="detail-en">${data[item+'EN']}</span>`;
             });
-
+            
+            // ふわっと表示
             contentArea.classList.remove('fade');
             loader.style.display = 'none';
             btn.style.visibility = 'visible';
+            
+            // スクロールを一番上に戻す
+            window.scrollTo(0, 0);
           }, 400);
         })
         .catch(error => {
-          document.getElementById('message').innerHTML = `通信エラーです。<br><span class="message-en">Network error.</span>`;
+          document.getElementById('message').innerHTML = `通信エラーが発生しました。<br><span class="message-en">Network error. Please try again.</span>`;
           contentArea.classList.remove('fade');
           loader.style.display = 'none';
           btn.style.visibility = 'visible';
