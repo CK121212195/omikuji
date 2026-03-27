@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NFC おみくじ - Omikuji</title>
 
-  <!-- ★Googleアナリティクス（アクセス解析）の魔法のタグ★ -->
-  <!-- Google tag (gtag.js) -->
+  <!-- ★Googleアナリティクスのタグ★ -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-5NZLZJW7FC"></script>
   <script>
     window.dataLayer = window.dataLayer ||[];
@@ -21,7 +20,7 @@
   <style>
     body {
       margin: 0;
-      padding: 20px 0;
+      padding: 0;
       font-family: 'Noto Serif JP', serif;
       background-color: #2c3e50;
       display: flex;
@@ -31,162 +30,133 @@
       box-sizing: border-box;
     }
 
+    /* --- ✨新追加：トップ画面（スタート画面） --- */
+    .start-screen {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: #fdfbf6; /* 和紙色 */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+      color: #d34b31;
+      transition: opacity 0.5s ease;
+    }
+    .circle-logo {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      width: 110px; height: 110px;
+      border: 5px solid #d34b31;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background-color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .start-title {
+      font-size: 3.5rem; 
+      font-weight: 700; 
+      letter-spacing: 0.1em; 
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    .wave-line {
+      font-size: 1.5rem;
+      letter-spacing: 0.2em;
+      margin-bottom: 10px;
+      opacity: 0.8;
+    }
+    .start-subtitle {
+      font-size: 1.2rem; 
+      margin-bottom: 30px; 
+      text-align: center; 
+      line-height: 1.5;
+      letter-spacing: 0.1em;
+    }
+    .start-btn {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: white; border: none;
+      padding: 15px 50px; border-radius: 40px; font-size: 1.5rem;
+      font-family: 'Noto Serif JP', serif; 
+      box-shadow: 0 8px 20px rgba(211, 75, 49, 0.4);
+      cursor: pointer; transition: all 0.3s ease; 
+      font-weight: bold; line-height: 1.4;
+      text-align: center;
+    }
+    .start-btn:active { transform: translateY(4px); box-shadow: 0 4px 10px rgba(211, 75, 49, 0.3); }
+
+    /* --- おみくじ結果画面 --- */
     .omikuji-paper {
       background-color: #fffdfa;
       width: 92vw;
       max-width: 500px;
+      margin: 20px 0;
       padding: 20px 10px;
       box-sizing: border-box;
       position: relative;
       color: #d34b31;
       border: 2px solid #d34b31;
       box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-      display: flex;
+      display: none; /* 最初は隠しておきます */
       flex-direction: column;
     }
 
     .omikuji-paper::before {
-      content: "";
-      position: absolute;
-      top: 6px; left: 6px; right: 6px; bottom: 6px;
-      border: 1px solid #d34b31;
-      pointer-events: none;
+      content: ""; position: absolute; top: 6px; left: 6px; right: 6px; bottom: 6px;
+      border: 1px solid #d34b31; pointer-events: none;
     }
 
     .content-area {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      opacity: 1;
-      transition: opacity 0.8s ease;
+      display: flex; flex-direction: column; flex: 1; opacity: 1; transition: opacity 0.8s ease;
     }
     .fade { opacity: 0 !important; }
 
-    /* --- 上部：メッセージ --- */
-    .top-section {
-      writing-mode: vertical-rl;
-      width: 100%;
-      min-height: 400px; /* 文字を大きくした分、高さを広げました */
-      padding: 30px 20px;
-      box-sizing: border-box;
-      display: flex;
-      align-items: center; 
-      justify-content: center; 
-    }
-    .message-text {
-      font-size: 1.8rem; /* ★1.6 → 1.8に拡大 */
-      font-weight: 700;
-      line-height: 1.8;
-      letter-spacing: 0.1em;
-    }
-    .message-en {
-      font-size: 1.1rem; /* ★英語を大幅に拡大 (0.85 → 1.1) */
-      font-weight: 400;
-      margin-right: 18px; /* 日本語との間隔を調整 */
-      opacity: 0.85; /* 少し濃くして読みやすく */
-      text-orientation: mixed;
-    }
+    /* 上部：メッセージ */
+    .top-section { writing-mode: vertical-rl; width: 100%; min-height: 400px; padding: 30px 20px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
+    .message-text { font-size: 1.8rem; font-weight: 700; line-height: 1.8; letter-spacing: 0.1em; }
+    .message-en { font-size: 1.1rem; font-weight: 400; margin-right: 18px; opacity: 0.85; text-orientation: mixed; }
 
-    /* --- 中央：運勢 --- */
-    .middle-section {
-      margin: 0 15px;
-      padding: 15px 10px;
-      border-top: 1px solid #d34b31;
-      border-bottom: 1px solid #d34b31;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .unsei-label {
-      font-size: 1.5rem; /* ★1.3 → 1.5に拡大 */
-      letter-spacing: 0.3em;
-      font-weight: 700;
-    }
-    .unsei-mark {
-      width: 42px;
-      height: 42px;
-      border: 2px solid #d34b31;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 1.4rem; /* 鳥居マークも少し拡大 */
-    }
-    .unsei-value {
-      font-size: 2.8rem; /* ★2.2 → 2.8に拡大 */
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-align: right;
-    }
-    .unsei-en {
-      font-size: 1.2rem; /* ★英語を拡大 */
-      font-weight: 400;
-      opacity: 0.85;
-      display: block;
-    }
+    /* 中央：運勢 */
+    .middle-section { margin: 0 15px; padding: 15px 10px; border-top: 1px solid #d34b31; border-bottom: 1px solid #d34b31; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .unsei-label { font-size: 1.5rem; letter-spacing: 0.3em; font-weight: 700; }
+    .unsei-mark { width: 42px; height: 42px; border: 2px solid #d34b31; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.4rem; }
+    .unsei-value { font-size: 2.8rem; font-weight: 700; letter-spacing: 0.1em; text-align: right; }
+    .unsei-en { font-size: 1.2rem; font-weight: 400; opacity: 0.85; display: block; }
 
-    /* --- 下部：詳細項目 --- */
-    .bottom-section {
-      display: flex;
-      flex-direction: row-reverse;
-      flex-wrap: wrap;
-      padding: 20px 5px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .detail-item {
-      writing-mode: vertical-rl;
-      height: 380px; /* ★文字が大きくなった分、高さを大幅に広げました */
-      margin: 0 10px 30px 10px;
-    }
-    .detail-title {
-      font-weight: 700;
-      font-size: 1.5rem; /* ★項目名（願事など）を拡大 1.2 → 1.5 */
-      margin-bottom: 12px;
-    }
-    .title-en {
-      font-size: 0.9rem; /* ★項目の英語（Wishesなど）を拡大 0.65 → 0.9 */
-      font-weight: 400;
-      opacity: 0.85;
-      display: block;
-      margin-top: 6px;
-      text-orientation: mixed;
-    }
-    .detail-desc {
-      font-size: 1.2rem; /* ★詳細テキストを拡大 0.95 → 1.2 */
-      line-height: 1.6;
-    }
-    .detail-en {
-      font-size: 0.9rem; /* ★詳細テキストの英語を大幅に拡大 0.65 → 0.9 */
-      line-height: 1.4;
-      margin-right: 12px;
-      opacity: 0.85;
-      text-orientation: mixed;
-    }
+    /* 下部：詳細項目 */
+    .bottom-section { display: flex; flex-direction: row-reverse; flex-wrap: wrap; padding: 20px 5px; width: 100%; box-sizing: border-box; }
+    .detail-item { writing-mode: vertical-rl; height: 380px; margin: 0 10px 30px 10px; }
+    .detail-title { font-weight: 700; font-size: 1.5rem; margin-bottom: 12px; }
+    .title-en { font-size: 0.9rem; font-weight: 400; opacity: 0.85; display: block; margin-top: 6px; text-orientation: mixed; }
+    .detail-desc { font-size: 1.2rem; line-height: 1.6; }
+    .detail-en { font-size: 0.9rem; line-height: 1.4; margin-right: 12px; opacity: 0.85; text-orientation: mixed; }
 
-    /* --- ボタンとローダー --- */
+    /* ボタンとローダー */
     .btn-container { text-align: center; margin-top: 15px; margin-bottom: 15px; z-index: 100; }
-    .btn {
-      background: #d34b31; color: white; border: none; padding: 15px 35px; /* ボタンも少し大きく */
-      border-radius: 30px; cursor: pointer; font-family: 'Noto Serif JP', serif;
-      font-size: 1.2rem; box-shadow: 0 4px 10px rgba(211, 75, 49, 0.3); transition: all 0.3s ease;
-      visibility: hidden;
-    }
+    .btn { background: #d34b31; color: white; border: none; padding: 15px 35px; border-radius: 30px; cursor: pointer; font-family: 'Noto Serif JP', serif; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(211, 75, 49, 0.3); transition: all 0.3s ease; visibility: hidden; }
     .btn:active { transform: translateY(2px); }
-    .loader {
-      border: 3px solid rgba(211, 75, 49, 0.2); border-top: 3px solid #d34b31;
-      border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; display: none;
-    }
+    .loader { border: 3px solid rgba(211, 75, 49, 0.2); border-top: 3px solid #d34b31; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; display: none; }
     @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
   </style>
 </head>
 <body>
 
+  <!-- ✨トップ画面（NFCタッチ直後に表示） -->
+  <div class="start-screen" id="start-screen">
+    <div class="circle-logo">⛩️</div>
+    <div class="start-title">おみくじ堂</div>
+    <div class="wave-line">〜〜〜〜〜〜〜</div>
+    <div class="start-subtitle">ウェブみくじ Ver. 2.0<br><span style="font-size: 0.9rem">Fortune Slip</span></div>
+    <div class="wave-line" style="margin-bottom: 40px;">〜〜〜〜〜〜〜</div>
+    <button class="start-btn" onclick="drawFortune()">
+      おみくじをひく<br><span style="font-size: 0.9rem; font-weight: normal;">Draw a fortune</span>
+    </button>
+  </div>
+
   <div class="loader" id="loader"></div>
 
-  <div class="omikuji-paper">
+  <!-- おみくじ結果画面（ボタンを押したら表示） -->
+  <div class="omikuji-paper" id="result-screen">
     <div class="content-area fade" id="content-area">
       
       <div class="top-section">
@@ -194,7 +164,6 @@
       </div>
       
       <div class="middle-section">
-        <!-- Fortuneの文字も0.9remに拡大しました -->
         <div class="unsei-label">運勢<br><span style="font-size:0.9rem; font-weight:normal; opacity:0.85;">Fortune</span></div>
         <div class="unsei-mark">⛩️</div>
         <div class="unsei-value" id="unsei"></div>
@@ -222,22 +191,59 @@
     </div>
     
     <div class="btn-container">
-      <button class="btn" id="btn" onclick="fetchOmikuji()">引き直す (Draw again)</button>
+      <button class="btn" id="btn" onclick="redrawFortune()">引き直す (Draw again)</button>
     </div>
   </div>
 
   <script>
-    // ユーザー様のGAS URL
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzCda4V2uK3uPFeCWajXyCBRcEbKwrapneg4vTmBhmtOt4L89pULGOpyPST1jTb73u-Yg/exec";
 
+    let preloadedData = null; // 裏で取得したデータを貯めておく箱
+    let fetchPromise = null;
+
+    // 画面が開かれた瞬間、トップ画面を見せつつ「裏でこっそり」通信開始！
     window.onload = function() {
-      fetchOmikuji();
+      fetchPromise = fetch(GAS_URL, { redirect: 'follow' })
+        .then(response => response.json())
+        .then(data => {
+          preloadedData = data;
+          return data;
+        })
+        .catch(error => { console.error(error); return null; });
     };
 
-    function fetchOmikuji() {
-      const btn = document.getElementById('btn');
+    // 「おみくじをひく」ボタンを押したときの処理
+    function drawFortune() {
+      const startScreen = document.getElementById('start-screen');
+      const resultScreen = document.getElementById('result-screen');
       const loader = document.getElementById('loader');
+
+      // トップ画面をフワッと消す
+      startScreen.style.opacity = '0';
+      
+      setTimeout(() => {
+        startScreen.style.display = 'none';
+        resultScreen.style.display = 'flex'; // おみくじの紙を表示
+        
+        if (preloadedData) {
+          // すでに裏側でデータが届いていれば、一瞬で表示！（爆速）
+          renderData(preloadedData);
+        } else {
+          // もしユーザーのタップが早すぎてまだ届いていなければ、少しローディングで待つ
+          loader.style.display = 'block';
+          fetchPromise.then(data => {
+            if(data) renderData(data);
+            else showError();
+          });
+        }
+      }, 400);
+    }
+
+    // 「引き直す」ボタンを押したときの処理
+    function redrawFortune() {
       const contentArea = document.getElementById('content-area');
+      const loader = document.getElementById('loader');
+      const btn = document.getElementById('btn');
 
       contentArea.classList.add('fade');
       btn.style.visibility = 'hidden';
@@ -246,28 +252,41 @@
       fetch(GAS_URL, { redirect: 'follow' })
         .then(response => response.json())
         .then(data => {
-          setTimeout(() => {
-            document.getElementById('unsei').innerHTML = `${data.fortuneJP}<br><span class="unsei-en">${data.fortuneEN}</span>`;
-            document.getElementById('message').innerHTML = `${data.messageJP}<br><span class="message-en">${data.messageEN}</span>`;
-            
-            const items =['negaigoto', 'renai', 'machibito', 'shoubai', 'ryokou', 'gakumon', 'byouki', 'kaiun_mono', 'kaiun_basho', 'kaiun_jinbutsu', 'kaiun_iro', 'fuun_mono', 'fuun_basho', 'fuun_jinbutsu'];
-            
-            items.forEach(item => {
-              document.getElementById(item).innerHTML = `${data[item+'JP']}<br><span class="detail-en">${data[item+'EN']}</span>`;
-            });
-            
-            contentArea.classList.remove('fade');
-            loader.style.display = 'none';
-            btn.style.visibility = 'visible';
-            window.scrollTo(0, 0);
-          }, 400);
+          setTimeout(() => renderData(data), 400);
         })
-        .catch(error => {
-          document.getElementById('message').innerHTML = `通信エラーが発生しました。<br><span class="message-en">Network error. Please try again.</span>`;
-          contentArea.classList.remove('fade');
-          loader.style.display = 'none';
-          btn.style.visibility = 'visible';
-        });
+        .catch(error => showError());
+    }
+
+    // データを画面にセットして表示する共通魔法
+    function renderData(data) {
+      document.getElementById('unsei').innerHTML = `${data.fortuneJP}<br><span class="unsei-en">${data.fortuneEN}</span>`;
+      document.getElementById('message').innerHTML = `${data.messageJP}<br><span class="message-en">${data.messageEN}</span>`;
+      
+      const items =['negaigoto', 'renai', 'machibito', 'shoubai', 'ryokou', 'gakumon', 'byouki', 'kaiun_mono', 'kaiun_basho', 'kaiun_jinbutsu', 'kaiun_iro', 'fuun_mono', 'fuun_basho', 'fuun_jinbutsu'];
+      items.forEach(item => {
+        document.getElementById(item).innerHTML = `${data[item+'JP']}<br><span class="detail-en">${data[item+'EN']}</span>`;
+      });
+      
+      const contentArea = document.getElementById('content-area');
+      const loader = document.getElementById('loader');
+      const btn = document.getElementById('btn');
+      
+      contentArea.classList.remove('fade');
+      loader.style.display = 'none';
+      btn.style.visibility = 'visible';
+      window.scrollTo(0, 0);
+    }
+
+    // エラー時の処理
+    function showError() {
+      const contentArea = document.getElementById('content-area');
+      const loader = document.getElementById('loader');
+      const btn = document.getElementById('btn');
+      
+      document.getElementById('message').innerHTML = `通信エラーが発生しました。<br><span class="message-en">Network error. Please try again.</span>`;
+      contentArea.classList.remove('fade');
+      loader.style.display = 'none';
+      btn.style.visibility = 'visible';
     }
   </script>
 </body>
